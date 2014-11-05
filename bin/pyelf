@@ -1,0 +1,63 @@
+#!/usr/bin/env python
+
+import argparse
+import sys
+
+sys.path.append('.')
+
+from pyelf import ELF
+
+
+def parse():
+    description = 'Display information about the contents of ELF format files'
+    parser = argparse.ArgumentParser(description=description)
+
+    parser.add_argument('file')
+    parser.add_argument('-d', '--dynamic', action='store_true',
+                        help='Display the dynamic section (if present)')
+
+    parser.add_argument('-H', '--header', action='store_true',
+                        help='Display the ELF file header')
+
+    parser.add_argument('-r', '--relocations', action='store_true',
+                        help='Display the relocations (if present)')
+
+    parser.add_argument('-S', '--section-headers', action='store_true',
+                        help="Display the sections' header")
+
+    parser.add_argument('-s', '--symbols', action='store_true',
+                        help='Display the symbol table')
+
+    return parser.parse_args()
+
+
+def display(args):
+    elf = ELF(args.file)
+    lst = []
+
+    if args.dynamic and elf.dynamic:
+        section = elf.dynamic
+        title = 'Dynamic section at offset 0x{:x} contains {} entries:\n{}'
+        lst.append(title.format(section.sh_offset, len(section), section))
+
+    if args.header:
+        lst.append('{}'.format(elf.header))
+
+    if args.section_headers:
+        lst.append('Section headers:\n{}'.format(elf.sheaders))
+
+    if args.symbols:
+        for section in elf.symbols:
+            title = "Symbol table '{}' contains {} entries:\n{}"
+            lst.append(title.format(section.name, len(section), section))
+
+    if args.relocations:
+        title = "Relocation section '{}' at offset 0x{:x} contains {} entries:\n{}"
+        for section in elf.relocations:
+            lst.append(title.format(section.name, section.sh_offset, len(section), section))
+
+    print '\n\n'.join(lst)
+
+
+if __name__ == '__main__':
+    display(parse())
