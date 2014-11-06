@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-sys.path.append('.')
+sys.path.insert(0, '.')
 
 from pyelf import ELF
 
@@ -57,7 +57,8 @@ def display(args):
         for section in elf.relocations:
             lst.append(title.format(section.name, section.sh_offset, len(section), section))
 
-    print '\n\n'.join(lst)
+    if lst:
+        print '\n\n'.join(lst)
 
 
 if __name__ == '__main__':
