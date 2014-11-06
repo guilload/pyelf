@@ -219,6 +219,7 @@ class Elf64_Dyn(Structure):
     @property
     def name(self):  # TODO: there're more d_types to deal with
         if self.d_type == DT_NEEDED:
-            return 'Shared library: [{}]'.format(self.symtab[self.d_val])
+            symtab = self.elf.sections[self.sheader.sh_link]
+            return 'Shared library: [{}]'.format(symtab[self.d_val])
         else:
             return self.d_val
