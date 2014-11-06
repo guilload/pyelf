@@ -152,15 +152,15 @@ class Elf64_Rela(Structure):
     members = ({'name': 'r_offset', 'type': Elf64_Addr},
                {'name': 'r_info', 'type': Elf64_Xword},
                {'name': 'r_addend', 'type': Elf64_Sxword},
-               {'name': 'r_sym', 'type': 'property', 'label': "Symbol's value"},
+               {'name': 'r_sym', 'type': 'property'},
                {'name': 'r_type', 'type': 'property'},
-               {'name': 'name', 'type': 'property'})
+               {'name': 'name', 'type': 'property', 'label': "Symbol's name + addend"},
+               {'name': 'value', 'type': 'property', 'label': "Symbol's value"})
 
     display = ('r_offset',
                'r_info',
                'r_type',
-               'r_sym',
-               'r_addend',
+               'value',
                'name')
 
     @property
@@ -176,17 +176,27 @@ class Elf64_Rela(Structure):
         if self.r_sym == 0:
             return ''
 
-        symtab = self.elf.sections[self.sheader.sh_link]
-        symbol = symtab[self.r_sym]
-
-        if symbol.st_name == 0:
-            sheader = self.elf.sheaders[symbol.st_shndx]
+        if self.symbol.st_name == 0:
+            sheader = self.elf.sheaders[self.symbol.st_shndx]
             name = sheader.name
         else:
-            name = symbol.name
+            name = self.symbol.name
 
         return '{} {} {}'.format(name, '+' if self.r_addend >= 0 else '-',
                                  abs(self.r_addend))
+
+    @property
+    def symbol(self):
+        symtab = self.elf.sections[self.sheader.sh_link]
+        symbol = symtab[self.r_sym]
+        return symbol
+
+    @property
+    def value(self):
+        if self.r_sym == 0:
+            return ''
+
+        return self.symbol.st_value
 
 
 class Elf64_Dyn(Structure):
