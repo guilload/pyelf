@@ -1,10 +1,17 @@
 from tabulate import tabulate
 
-from .strtab import StringTable
 from .structs import STRUCTS
 
 
 class SectionHeaderTable(object):
+
+    key = '\n'.join(['Key to flags:',
+                     '  W (write), A (alloc), X (execute), M (merge), '
+                     'S (strings), l (large)',
+                     '  I (info), L (link order), G (group), T (TLS), '
+                     'E (exclude), x (unknown)',
+                     '  O (extra OS processing required) o (OS specific), '
+                     'p (processor specific)'])
 
     def __init__(self, elf):
         self.elf = elf

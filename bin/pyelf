@@ -45,6 +45,7 @@ def display(args):
 
     if args.section_headers:
         lst.append('Section headers:\n{}'.format(elf.sheaders))
+        lst.append(elf.sheaders.key)
 
     if args.symbols:
         for section in elf.symbols:
